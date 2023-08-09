@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fraud detection</title>
+</head>
+<body>
+    <h1>Fraud detection</h1>
+    <form method="post">
+        <label for="text_to_check">Enter the text to check:</label><br>
+        <textarea name="text_to_check" rows="4" cols="50"></textarea><br>
+        <input type="submit" value="Submit">
+    </form>
+    {% if response %}
+    <h2>Your Input:</h2>
+    <p>{{ request.form['text_to_check'] }}</p>
+    <h2>Response:</h2>
+    <p>{{ response }}</p>
+    {% endif %}
+</body>
+</html>
