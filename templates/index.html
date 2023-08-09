@@ -4,6 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fraud detection</title>
+    <style>
+        body {
+            font-family: arial, verdana, Sans-Serif;
+        }
+        .trustworthy {
+            font-weight: bold;
+            color: green;
+            margin-bottom: 1rem;
+        }
+        .fraud {
+            font-weight: bold;
+            color: red;
+            margin-bottom: 1rem;
+        }
+    </style>
 </head>
 <body>
     <h1>Fraud detection</h1>
@@ -16,7 +31,17 @@
     <h2>Your Input:</h2>
     <p>{{ request.form['text_to_check'] }}</p>
     <h2>Response:</h2>
-    <p>{{ response }}</p>
+     <p class="response">
+        {% if "Category: Trustworthy" in response %}
+            Category:<br><span class="trustworthy">Trustworthy</span><br>
+            {{ response.replace("Category: Trustworthy", "") }}
+        {% elif "Category: Fraud" in response %}
+            Category:<br><span class="fraud">Fraud</span><br>
+            {{ response.replace("Category: Fraud", "") }}
+        {% else %}
+            {{ response }}
+        {% endif %}
+    </p>
     {% endif %}
 </body>
 </html>
