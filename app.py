@@ -1,20 +1,33 @@
-from flask import Flask, render_template, request, jsonify
-import openai
-from config import API_KEY
-from prompt import PROMPT
+import os
+from flask import Flask, request, render_template
+from ibm_watson import AssistantV2
+from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
+
+from config import API_KEY, API_URL, ASSISTANT_ID
 
 app = Flask(__name__)
 
-openai.api_key = API_KEY
-global_prompt = PROMPT
+WATSON_API_KEY = API_KEY
+WATSON_URL = API_URL
+WATSON_ASSISTANT_ID = ASSISTANT_ID
 
-def chatGPT(text, temperature=0.7):
-    messages = [{"role": "system", "content": "You are a fraud detection assistant."}]
-    messages.append({"role": "user", "content": global_prompt + text})
-    chat = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo", messages=messages, temperature=temperature
-    )
-    reply = chat.choices[0].message['content']
+authenticator = IAMAuthenticator(WATSON_API_KEY)
+assistant = AssistantV2(
+    version='2021-06-14',
+    authenticator=authenticator
+)
+assistant.set_service_url(WATSON_URL)
+
+def chatWatsonX(text, assistant_id=WATSON_ASSISTANT_ID):
+    response = assistant.message(
+        assistant_id=assistant_id,
+        input={
+            'message_type': 'text',
+            'text': text
+        }
+    ).get_result()
+
+    reply = response['output']['generic'][0]['text']
     return reply
 
 @app.route('/', methods=['GET', 'POST'])
@@ -22,7 +35,7 @@ def home():
     response = None
     if request.method == 'POST':
         text_to_check = request.form['text_to_check']
-        response = chatGPT(text_to_check, temperature=0.8)
+        response = chatWatsonX(text_to_check)
     return render_template('index.html', response=response)
 
 if __name__ == '__main__':
